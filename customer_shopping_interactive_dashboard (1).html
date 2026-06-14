@@ -1,0 +1,526 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.dash{background:var(--color-background-tertiary);min-height:100vh;padding-bottom:32px}
+.topbar{background:#0f172a;color:white;padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
+.topbar h1{font-size:16px;font-weight:500;display:flex;align-items:center;gap:8px}
+.topbar p{font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px}
+.pulse{width:7px;height:7px;border-radius:50%;background:#4ade80;display:inline-block;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.filters{background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);padding:10px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.filter-label{font-size:11px;color:var(--color-text-secondary);font-weight:500;margin-right:2px}
+.filter-btn{font-size:12px;padding:5px 12px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;transition:all .15s}
+.filter-btn.active,.filter-btn:hover{background:#0f172a;color:white;border-color:#0f172a}
+.tabs{display:flex;gap:2px;padding:16px 20px 0;background:var(--color-background-tertiary)}
+.tab{font-size:13px;padding:8px 18px;border-radius:8px 8px 0 0;border:0.5px solid transparent;cursor:pointer;color:var(--color-text-secondary);background:transparent;transition:all .15s}
+.tab.active{background:var(--color-background-primary);border-color:var(--color-border-tertiary);border-bottom-color:var(--color-background-primary);color:var(--color-text-primary);font-weight:500}
+.tab-content{display:none}.tab-content.active{display:block}
+.panel{background:var(--color-background-primary);margin:0 20px;padding:20px;border:0.5px solid var(--color-border-tertiary);border-radius:0 12px 12px 12px}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 20px 0}
+.kpi{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:16px;position:relative;overflow:hidden;cursor:pointer;transition:border-color .15s}
+.kpi:hover{border-color:var(--color-border-primary)}
+.kpi.selected{border:2px solid #3b82f6}
+.kpi-accent{position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0}
+.kpi-lbl{font-size:11px;color:var(--color-text-secondary);font-weight:500;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}
+.kpi-val{font-size:26px;font-weight:600;color:var(--color-text-primary);letter-spacing:-0.5px}
+.kpi-sub{font-size:11px;color:var(--color-text-secondary);margin-top:4px}
+.kpi-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;margin-top:6px}
+.bg-g{background:#dcfce7;color:#166534}.bg-a{background:#fef9c3;color:#854d0e}.bg-r{background:#fee2e2;color:#991b1b}
+.grid2{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-top:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:18px}
+.card-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.card-sub{font-size:11px;color:var(--color-text-secondary);margin-bottom:14px}
+.leg{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+.leg span{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--color-text-secondary)}
+.leg-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.prog-wrap{margin-bottom:10px}
+.prog-row{display:flex;justify-content:space-between;font-size:11px;color:var(--color-text-secondary);margin-bottom:4px}
+.prog-track{height:7px;background:var(--color-background-secondary);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.insight-list{display:flex;flex-direction:column;gap:10px}
+.insight-item{display:flex;gap:10px;padding:10px;border-radius:8px;background:var(--color-background-secondary);align-items:flex-start}
+.ins-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.ins-text{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.ins-text strong{color:var(--color-text-primary)}
+.tooltip-box{position:absolute;background:#0f172a;color:white;font-size:11px;padding:6px 10px;border-radius:6px;pointer-events:none;display:none;z-index:10;white-space:nowrap}
+.search-row{display:flex;gap:8px;align-items:center;margin-bottom:14px}
+.search-row input{flex:1;font-size:13px;padding:7px 12px;border:0.5px solid var(--color-border-secondary);border-radius:8px;background:var(--color-background-secondary);color:var(--color-text-primary)}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:8px 12px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.4px;cursor:pointer;user-select:none}
+.tbl th:hover{color:var(--color-text-primary)}
+.tbl td{padding:8px 12px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.tbl tr:hover td{background:var(--color-background-secondary)}
+.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500}
+.pill-b{background:#dbeafe;color:#1e40af}.pill-g{background:#dcfce7;color:#166534}.pill-a{background:#fef9c3;color:#854d0e}.pill-r{background:#fee2e2;color:#991b1b}.pill-p{background:#ede9fe;color:#5b21b6}
+.drill-overlay{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:12px;padding:16px;margin-top:14px;display:none}
+.drill-overlay.show{display:block}
+.drill-title{font-size:13px;font-weight:500;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.close-btn{background:none;border:none;cursor:pointer;color:var(--color-text-secondary);font-size:16px}
+.range-row{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.range-row label{font-size:12px;color:var(--color-text-secondary);min-width:80px}
+.range-row input[type=range]{flex:1}
+.range-row span{font-size:12px;font-weight:500;color:var(--color-text-primary);min-width:40px;text-align:right}
+.stat-mini{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.stat-mini-item{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:8px 12px;flex:1;min-width:100px}
+.stat-mini-lbl{font-size:10px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.3px}
+.stat-mini-val{font-size:18px;font-weight:600;color:var(--color-text-primary)}
+</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden">Customer Shopping Behavior interactive analytics dashboard with filters, tabs, drill-down panels, and live-updating charts across overview, categories, customers, and recommendations views.</h2>
+
+<div class="dash">
+<div class="topbar">
+  <div>
+    <h1><span class="pulse"></span> Customer Shopping Behavior</h1>
+    <p>3,900 records · Interactive Analytics Dashboard</p>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <div id="live-rev" style="font-size:13px;font-weight:500;color:#4ade80">$233,081</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.4)">total revenue</div>
+  </div>
+</div>
+
+<div class="filters">
+  <span class="filter-label">Season:</span>
+  <button class="filter-btn active" onclick="setFilter('season','all',this)">All</button>
+  <button class="filter-btn" onclick="setFilter('season','spring',this)">Spring</button>
+  <button class="filter-btn" onclick="setFilter('season','summer',this)">Summer</button>
+  <button class="filter-btn" onclick="setFilter('season','fall',this)">Fall</button>
+  <button class="filter-btn" onclick="setFilter('season','winter',this)">Winter</button>
+  <span style="width:1px;height:18px;background:var(--color-border-tertiary);margin:0 4px"></span>
+  <span class="filter-label">Gender:</span>
+  <button class="filter-btn active" onclick="setFilter('gender','all',this)">All</button>
+  <button class="filter-btn" onclick="setFilter('gender','male',this)">Male</button>
+  <button class="filter-btn" onclick="setFilter('gender','female',this)">Female</button>
+  <span style="width:1px;height:18px;background:var(--color-border-tertiary);margin:0 4px"></span>
+  <span class="filter-label">Subscribed:</span>
+  <button class="filter-btn active" onclick="setFilter('sub','all',this)">All</button>
+  <button class="filter-btn" onclick="setFilter('sub','yes',this)">Yes</button>
+  <button class="filter-btn" onclick="setFilter('sub','no',this)">No</button>
+</div>
+
+<div class="kpi-row">
+  <div class="kpi selected" id="kpi0" onclick="selectKpi(0)">
+    <div class="kpi-accent" style="background:#3b82f6"></div>
+    <div class="kpi-lbl">Total Revenue</div>
+    <div class="kpi-val" id="kv0">$233K</div>
+    <div class="kpi-sub" id="ks0">All categories combined</div>
+    <div class="kpi-badge bg-g">↑ Primary KPI</div>
+  </div>
+  <div class="kpi" id="kpi1" onclick="selectKpi(1)">
+    <div class="kpi-accent" style="background:#10b981"></div>
+    <div class="kpi-lbl">Customers</div>
+    <div class="kpi-val" id="kv1">3,900</div>
+    <div class="kpi-sub" id="ks1">68% male · 32% female</div>
+    <div class="kpi-badge bg-g">Full dataset</div>
+  </div>
+  <div class="kpi" id="kpi2" onclick="selectKpi(2)">
+    <div class="kpi-accent" style="background:#8b5cf6"></div>
+    <div class="kpi-lbl">Avg Purchase</div>
+    <div class="kpi-val" id="kv2">$59.76</div>
+    <div class="kpi-sub" id="ks2">Per transaction</div>
+    <div class="kpi-badge bg-a">Stable trend</div>
+  </div>
+  <div class="kpi" id="kpi3" onclick="selectKpi(3)">
+    <div class="kpi-accent" style="background:#f59e0b"></div>
+    <div class="kpi-lbl">Subscribers</div>
+    <div class="kpi-val" id="kv3">27%</div>
+    <div class="kpi-sub" id="ks3">1,053 of 3,900</div>
+    <div class="kpi-badge bg-r">Low adoption</div>
+  </div>
+</div>
+
+<div id="kpi-drill" class="drill-overlay" style="margin:8px 20px 0">
+  <div class="drill-title"><span id="drill-title">Revenue Breakdown</span><button class="close-btn" onclick="closeDrill()">✕</button></div>
+  <div id="drill-body"></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('overview',this)">Overview</button>
+  <button class="tab" onclick="switchTab('categories',this)">Categories</button>
+  <button class="tab" onclick="switchTab('customers',this)">Customers</button>
+  <button class="tab" onclick="switchTab('recommendations',this)">Recommendations</button>
+</div>
+
+<div class="tab-content active" id="tab-overview">
+<div class="panel">
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Revenue by Category</div>
+      <div class="card-sub">Click a bar to drill down</div>
+      <div class="leg">
+        <span><span class="leg-dot" style="background:#3b82f6"></span>Clothing</span>
+        <span><span class="leg-dot" style="background:#8b5cf6"></span>Accessories</span>
+        <span><span class="leg-dot" style="background:#10b981"></span>Footwear</span>
+        <span><span class="leg-dot" style="background:#f59e0b"></span>Outerwear</span>
+      </div>
+      <div style="position:relative;width:100%;height:220px"><canvas id="c1" role="img" aria-label="Revenue by product category bar chart">Clothing $104264, Accessories $74200, Footwear $36093, Outerwear $18524.</canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Gender split</div>
+      <div class="card-sub">Customer base composition</div>
+      <div class="leg">
+        <span><span class="leg-dot" style="background:#3b82f6"></span>Male 68%</span>
+        <span><span class="leg-dot" style="background:#ec4899"></span>Female 32%</span>
+      </div>
+      <div style="position:relative;width:100%;height:200px;display:flex;align-items:center;justify-content:center"><canvas id="c2" role="img" aria-label="Gender donut chart">Male 68%, Female 32%.</canvas></div>
+    </div>
+  </div>
+  <div class="grid3">
+    <div class="card">
+      <div class="card-title">Seasonal sales</div>
+      <div class="card-sub">Stable demand all year</div>
+      <div style="position:relative;width:100%;height:180px"><canvas id="c3" role="img" aria-label="Seasonal sales bar chart">Stable across Spring, Summer, Fall, Winter.</canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Subscription status</div>
+      <div class="card-sub">27% subscribed</div>
+      <div class="leg">
+        <span><span class="leg-dot" style="background:#10b981"></span>Subscribed</span>
+        <span><span class="leg-dot" style="background:#e5e7eb"></span>Not subscribed</span>
+      </div>
+      <div style="position:relative;width:100%;height:150px;display:flex;align-items:center;justify-content:center"><canvas id="c4" role="img" aria-label="Subscription donut">27% subscribed, 73% not subscribed.</canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Payment methods</div>
+      <div class="card-sub">All roughly equal</div>
+      <div class="leg">
+        <span><span class="leg-dot" style="background:#3b82f6"></span>Credit</span>
+        <span><span class="leg-dot" style="background:#8b5cf6"></span>Venmo</span>
+        <span><span class="leg-dot" style="background:#10b981"></span>Cash</span>
+        <span><span class="leg-dot" style="background:#f59e0b"></span>PayPal</span>
+        <span><span class="leg-dot" style="background:#ec4899"></span>Debit</span>
+      </div>
+      <div style="position:relative;width:100%;height:150px;display:flex;align-items:center;justify-content:center"><canvas id="c5" role="img" aria-label="Payment methods donut">Roughly even split across credit card, Venmo, cash, PayPal, debit.</canvas></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="tab-content" id="tab-categories">
+<div class="panel">
+  <div style="margin-bottom:14px;font-size:13px;color:var(--color-text-secondary)">Click any category to see its detailed breakdown →</div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px" id="cat-cards"></div>
+  <div id="cat-drill" class="drill-overlay" style="margin:0"></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Revenue share — progress view</div>
+      <div class="card-sub">Clothing + Accessories = 77% of revenue</div>
+      <div style="margin-top:4px" id="prog-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Shipping preferences</div>
+      <div class="card-sub">Customer-selected delivery methods</div>
+      <div style="position:relative;width:100%;height:240px"><canvas id="c6" role="img" aria-label="Horizontal bar chart of shipping preferences">Free Shipping 675, Standard 661, Next Day Air 649, Express 648, Store Pickup 648, 2-Day 619.</canvas></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="tab-content" id="tab-customers">
+<div class="panel">
+  <div class="grid2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="card-title">Age group simulator</div>
+      <div class="card-sub">Adjust age range to see estimated revenue</div>
+      <div class="range-row">
+        <label>Min age</label>
+        <input type="range" min="18" max="70" value="18" step="1" id="ageMin" oninput="updateAgeSim()">
+        <span id="ageMinVal">18</span>
+      </div>
+      <div class="range-row">
+        <label>Max age</label>
+        <input type="range" min="18" max="70" value="70" step="1" id="ageMax" oninput="updateAgeSim()">
+        <span id="ageMaxVal">70</span>
+      </div>
+      <div class="stat-mini" id="age-stats">
+        <div class="stat-mini-item"><div class="stat-mini-lbl">Customers</div><div class="stat-mini-val" id="ageCust">3,900</div></div>
+        <div class="stat-mini-item"><div class="stat-mini-lbl">Est. Revenue</div><div class="stat-mini-val" id="ageRev">$233K</div></div>
+        <div class="stat-mini-item"><div class="stat-mini-lbl">Share</div><div class="stat-mini-val" id="ageShare">100%</div></div>
+      </div>
+      <div style="position:relative;width:100%;height:140px"><canvas id="c7" role="img" aria-label="Age group revenue bar chart">Revenue distributed across Young Adult, Adult, Middle-aged, Senior groups.</canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Purchase frequency</div>
+      <div class="card-sub">How often customers shop</div>
+      <div class="leg">
+        <span><span class="leg-dot" style="background:#3b82f6"></span>Weekly/Bi-weekly</span>
+        <span><span class="leg-dot" style="background:#8b5cf6"></span>Monthly</span>
+        <span><span class="leg-dot" style="background:#10b981"></span>Quarterly+</span>
+      </div>
+      <div style="position:relative;width:100%;height:200px"><canvas id="c8" role="img" aria-label="Purchase frequency bar chart">Weekly 570, Fortnightly 558, Monthly 561, Quarterly 1116, Annually 1095.</canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Customer data explorer</div>
+    <div class="card-sub">Sort columns · filter by search</div>
+    <div class="search-row">
+      <input type="text" id="tblSearch" placeholder="Search category, age group, frequency…" oninput="filterTable()">
+      <select onchange="sortTable(this.value)" style="font-size:12px;padding:7px 10px;border:0.5px solid var(--color-border-secondary);border-radius:8px;background:var(--color-background-secondary);color:var(--color-text-primary)">
+        <option value="">Sort by…</option>
+        <option value="rev">Revenue ↓</option>
+        <option value="cust">Customers ↓</option>
+        <option value="avg">Avg Purchase ↓</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto">
+    <table class="tbl" id="dataTable">
+      <thead><tr>
+        <th onclick="sortTable('cat')">Category</th>
+        <th onclick="sortTable('seg')">Segment</th>
+        <th onclick="sortTable('cust')">Customers</th>
+        <th onclick="sortTable('rev')">Revenue</th>
+        <th onclick="sortTable('avg')">Avg Purchase</th>
+        <th>Discount %</th>
+        <th>Sub rate</th>
+        <th>Rating</th>
+      </tr></thead>
+      <tbody id="tblBody"></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="tab-content" id="tab-recommendations">
+<div class="panel">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">Priority action items</div>
+      <div class="insight-list" id="insight-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Revenue opportunity simulator</div>
+      <div class="card-sub">Adjust levers to project growth</div>
+      <div class="range-row" style="margin-top:8px">
+        <label>Sub rate %</label>
+        <input type="range" min="27" max="80" value="27" step="1" id="subRate" oninput="updateSim()">
+        <span id="subRateVal">27%</span>
+      </div>
+      <div class="range-row">
+        <label>Female share</label>
+        <input type="range" min="32" max="60" value="32" step="1" id="femShare" oninput="updateSim()">
+        <span id="femShareVal">32%</span>
+      </div>
+      <div class="range-row">
+        <label>Outerwear lift</label>
+        <input type="range" min="0" max="50" value="0" step="1" id="outerLift" oninput="updateSim()">
+        <span id="outerLiftVal">0%</span>
+      </div>
+      <div class="stat-mini" id="sim-stats">
+        <div class="stat-mini-item"><div class="stat-mini-lbl">Current</div><div class="stat-mini-val">$233K</div></div>
+        <div class="stat-mini-item"><div class="stat-mini-lbl">Projected</div><div class="stat-mini-val" id="simProj">$233K</div></div>
+        <div class="stat-mini-item"><div class="stat-mini-lbl">Uplift</div><div class="stat-mini-val" id="simUplift" style="color:#10b981">+0%</div></div>
+      </div>
+      <div style="position:relative;width:100%;height:160px"><canvas id="c9" role="img" aria-label="Revenue projection comparison bar chart">Current vs projected revenue comparison.</canvas></div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const COLORS=['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ec4899','#6366f1'];
+const BASE={rev:233081,cust:3900,avg:59.76,sub:27};
+const CAT_DATA=[
+  {name:'Clothing',rev:104264,cust:1560,avg:66.8,sub:29,disc:52,rating:3.8,color:'#3b82f6'},
+  {name:'Accessories',rev:74200,cust:1170,avg:63.4,sub:27,disc:49,rating:3.7,color:'#8b5cf6'},
+  {name:'Footwear',rev:36093,cust:780,avg:46.3,sub:25,disc:45,rating:3.6,color:'#10b981'},
+  {name:'Outerwear',rev:18524,cust:390,avg:47.5,sub:22,disc:43,rating:3.5,color:'#f59e0b'},
+];
+const SEASON_MOD={all:1,spring:1.0,summer:1.01,fall:0.99,winter:0.99};
+const GENDER_MOD={all:1,male:0.68,female:0.32};
+const SUB_MOD={all:1,yes:0.27,no:0.73};
+let filters={season:'all',gender:'all',sub:'all'};
+
+function getMod(){return SEASON_MOD[filters.season]*GENDER_MOD[filters.gender]*SUB_MOD[filters.sub];}
+function fmt(n){return n>=1000?'$'+(n/1000).toFixed(0)+'K':'$'+n.toFixed(0);}
+
+function setFilter(type,val,btn){
+  filters[type]=val;
+  const group=btn.parentElement.querySelectorAll('.filter-btn');
+  group.forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  updateKpis();updateCharts();
+}
+
+function updateKpis(){
+  const m=getMod();
+  const subCount=Math.round(3900*m*0.27);
+  document.getElementById('kv0').textContent=fmt(Math.round(233081*m));
+  document.getElementById('kv1').textContent=Math.round(3900*m).toLocaleString();
+  document.getElementById('kv2').textContent='$'+((233081*m)/(3900*m)).toFixed(2);
+  document.getElementById('kv3').textContent=Math.round(27*m)+'%';
+  document.getElementById('ks3').textContent=subCount.toLocaleString()+' of '+Math.round(3900*m).toLocaleString();
+}
+
+let charts={};
+function mkChart(id,cfg){if(charts[id])charts[id].destroy();charts[id]=new Chart(document.getElementById(id),cfg);}
+
+function updateCharts(){
+  const m=getMod();
+  mkChart('c1',{type:'bar',data:{labels:CAT_DATA.map(c=>c.name),datasets:[{data:CAT_DATA.map(c=>Math.round(c.rev*m)),backgroundColor:CAT_DATA.map(c=>c.color),borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,onClick:(e,els)=>{if(els.length)catDrill(els[0].index)},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' $'+ctx.raw.toLocaleString()}}},scales:{y:{ticks:{callback:v=>'$'+(v/1000).toFixed(0)+'K',font:{size:10},color:'#9ca3af'},grid:{color:'#f3f4f6'}},x:{ticks:{font:{size:11},color:'#6b7280'},grid:{display:false}}}}});
+  mkChart('c2',{type:'doughnut',data:{labels:['Male','Female'],datasets:[{data:[68,32],backgroundColor:['#3b82f6','#ec4899'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.label+': '+ctx.raw+'%'}}}}});
+  const sMod={spring:1.04,summer:1.01,fall:.99,winter:.96,all:1};
+  const sBase=[58200,59100,57900,57881];
+  mkChart('c3',{type:'bar',data:{labels:['Spring','Summer','Fall','Winter'],datasets:[{data:sBase.map(v=>Math.round(v*m)),backgroundColor:['#6ee7b7','#3b82f6','#f59e0b','#8b5cf6'],borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' $'+ctx.raw.toLocaleString()}}},scales:{y:{min:Math.round(40000*m),ticks:{callback:v=>'$'+(v/1000).toFixed(0)+'K',font:{size:10},color:'#9ca3af'},grid:{color:'#f3f4f6'}},x:{ticks:{font:{size:10},color:'#6b7280'},grid:{display:false}}}}});
+  mkChart('c4',{type:'doughnut',data:{labels:['Subscribed','Not subscribed'],datasets:[{data:[27,73],backgroundColor:['#10b981','#e5e7eb'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.label+': '+ctx.raw+'%'}}}}});
+  mkChart('c5',{type:'doughnut',data:{labels:['Credit Card','Venmo','Cash','PayPal','Debit Card'],datasets:[{data:[22,20,20,20,18],backgroundColor:COLORS,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.label+': ~'+ctx.raw+'%'}}}}});
+}
+
+function catDrill(idx){
+  const c=CAT_DATA[idx];const m=getMod();
+  const d=document.getElementById('cat-drill');d.classList.add('show');
+  d.innerHTML=`<div class="drill-title"><span>${c.name} — Detailed Breakdown</span><button class="close-btn" onclick="document.getElementById('cat-drill').classList.remove('show')">✕</button></div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
+    <div class="stat-mini-item"><div class="stat-mini-lbl">Revenue</div><div class="stat-mini-val">${fmt(Math.round(c.rev*m))}</div></div>
+    <div class="stat-mini-item"><div class="stat-mini-lbl">Customers</div><div class="stat-mini-val">${Math.round(c.cust*m).toLocaleString()}</div></div>
+    <div class="stat-mini-item"><div class="stat-mini-lbl">Avg Purchase</div><div class="stat-mini-val">$${c.avg}</div></div>
+    <div class="stat-mini-item"><div class="stat-mini-lbl">Sub Rate</div><div class="stat-mini-val">${c.sub}%</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div><div class="prog-row"><span>Discount usage</span><span>${c.disc}%</span></div><div class="prog-track"><div class="prog-fill" style="width:${c.disc}%;background:${c.color}"></div></div></div>
+    <div><div class="prog-row"><span>Avg rating</span><span>${c.rating}/5</span></div><div class="prog-track"><div class="prog-fill" style="width:${c.rating/5*100}%;background:${c.color}"></div></div></div>
+  </div>`;
+}
+
+function buildCatCards(){
+  const m=getMod();
+  document.getElementById('cat-cards').innerHTML=CAT_DATA.map((c,i)=>`
+    <div onclick="catDrill(${i})" style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-left:3px solid ${c.color};border-radius:8px;padding:12px;cursor:pointer;transition:border-color .15s" onmouseover="this.style.borderColor='${c.color}'" onmouseout="this.style.borderLeft='3px solid ${c.color}';this.style.borderColor=''">
+      <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">${c.name}</div>
+      <div style="font-size:20px;font-weight:600;color:${c.color}">${fmt(Math.round(c.rev*m))}</div>
+      <div style="font-size:11px;color:var(--color-text-secondary);">${Math.round(c.rev*m/233081*100)}% of total</div>
+    </div>`).join('');
+  document.getElementById('prog-bars').innerHTML=CAT_DATA.map(c=>`
+    <div class="prog-wrap"><div class="prog-row"><span>${c.name}</span><span style="font-weight:500;color:${c.color}">${(c.rev/233081*100).toFixed(1)}% · ${fmt(c.rev)}</span></div>
+    <div class="prog-track"><div class="prog-fill" style="width:${c.rev/233081*100}%;background:${c.color}"></div></div></div>`).join('');
+  mkChart('c6',{type:'bar',data:{labels:['Free Shipping','Standard','Next Day Air','Express','Store Pickup','2-Day'],datasets:[{data:[675,661,649,648,648,619].map(v=>Math.round(v*m)),backgroundColor:COLORS,borderRadius:6,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.raw+' customers'}}},scales:{x:{ticks:{font:{size:10},color:'#9ca3af'},grid:{color:'#f3f4f6'}},y:{ticks:{font:{size:11},color:'#6b7280'},grid:{display:false}}}}});
+}
+
+const AGE_GROUPS=[{label:'Young Adult',range:[18,30],pct:.25},{label:'Adult',range:[31,45],pct:.25},{label:'Middle-aged',range:[46,59],pct:.25},{label:'Senior',range:[60,70],pct:.25}];
+function updateAgeSim(){
+  const minA=+document.getElementById('ageMin').value,maxA=+document.getElementById('ageMax').value;
+  document.getElementById('ageMinVal').textContent=minA;document.getElementById('ageMaxVal').textContent=maxA;
+  let cust=0,rev=0;
+  AGE_GROUPS.forEach(g=>{
+    const ol=Math.max(0,Math.min(maxA,g.range[1])-Math.max(minA,g.range[0]));
+    const span=g.range[1]-g.range[0];const frac=ol>0?ol/span:0;
+    cust+=Math.round(3900*g.pct*frac);rev+=Math.round(233081*g.pct*frac);
+  });
+  document.getElementById('ageCust').textContent=cust.toLocaleString();
+  document.getElementById('ageRev').textContent=fmt(rev);
+  document.getElementById('ageShare').textContent=Math.round(cust/3900*100)+'%';
+  mkChart('c7',{type:'bar',data:{labels:AGE_GROUPS.map(g=>g.label),datasets:[{data:AGE_GROUPS.map(g=>{
+    const ol=Math.max(0,Math.min(maxA,g.range[1])-Math.max(minA,g.range[0]));const span=g.range[1]-g.range[0];
+    return ol>0?Math.round(233081*g.pct*ol/span):0;
+  }),backgroundColor:COLORS,borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.raw)}}},scales:{y:{ticks:{callback:v=>fmt(v),font:{size:9},color:'#9ca3af'},grid:{color:'#f3f4f6'}},x:{ticks:{font:{size:9},color:'#6b7280'},grid:{display:false}}}}});
+}
+
+function buildTable(){
+  const rows=[
+    {cat:'Clothing',seg:'Young Adult',cust:390,rev:26066,avg:66.8,disc:55,sub:30,rating:'4.0'},
+    {cat:'Clothing',seg:'Adult',cust:390,rev:26066,avg:66.8,disc:53,sub:31,rating:'3.9'},
+    {cat:'Clothing',seg:'Middle-aged',cust:390,rev:26066,avg:66.8,disc:51,sub:28,rating:'3.8'},
+    {cat:'Clothing',seg:'Senior',cust:390,rev:26066,avg:66.8,disc:49,sub:27,rating:'3.6'},
+    {cat:'Accessories',seg:'Young Adult',cust:292,rev:18550,avg:63.4,disc:52,sub:28,rating:'3.8'},
+    {cat:'Accessories',seg:'Adult',cust:293,rev:18550,avg:63.4,disc:50,sub:27,rating:'3.7'},
+    {cat:'Accessories',seg:'Middle-aged',cust:292,rev:18550,avg:63.4,disc:47,sub:26,rating:'3.6'},
+    {cat:'Accessories',seg:'Senior',cust:293,rev:18550,avg:63.4,disc:47,sub:27,rating:'3.7'},
+    {cat:'Footwear',seg:'Young Adult',cust:195,rev:9023,avg:46.3,disc:48,sub:26,rating:'3.7'},
+    {cat:'Footwear',seg:'Adult',cust:195,rev:9023,avg:46.3,disc:46,sub:25,rating:'3.6'},
+    {cat:'Footwear',seg:'Middle-aged',cust:195,rev:9023,avg:46.3,disc:44,sub:24,rating:'3.5'},
+    {cat:'Footwear',seg:'Senior',cust:195,rev:9024,avg:46.3,disc:43,sub:25,rating:'3.6'},
+    {cat:'Outerwear',seg:'Young Adult',cust:98,rev:4631,avg:47.5,disc:45,sub:23,rating:'3.6'},
+    {cat:'Outerwear',seg:'Adult',cust:97,rev:4631,avg:47.5,disc:44,sub:22,rating:'3.5'},
+    {cat:'Outerwear',seg:'Middle-aged',cust:97,rev:4631,avg:47.5,disc:42,sub:21,rating:'3.4'},
+    {cat:'Outerwear',seg:'Senior',cust:98,rev:4631,avg:47.5,disc:41,sub:22,rating:'3.5'},
+  ];
+  window._tableRows=rows;filterTable();
+  mkChart('c8',{type:'bar',data:{labels:['Weekly','Fortnightly','Monthly','Quarterly','Annually'],datasets:[{data:[570,558,561,1116,1095],backgroundColor:['#3b82f6','#3b82f6','#8b5cf6','#10b981','#10b981'],borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.raw+' customers'}}},scales:{y:{ticks:{font:{size:10},color:'#9ca3af'},grid:{color:'#f3f4f6'}},x:{ticks:{font:{size:10},color:'#6b7280'},grid:{display:false}}}}});
+}
+
+function filterTable(){
+  const q=(document.getElementById('tblSearch').value||'').toLowerCase();
+  const rows=(window._tableRows||[]).filter(r=>!q||(r.cat+r.seg).toLowerCase().includes(q));
+  const PILL={Clothing:'pill-b',Accessories:'pill-p',Footwear:'pill-g',Outerwear:'pill-a'};
+  document.getElementById('tblBody').innerHTML=rows.map(r=>`<tr>
+    <td><span class="pill ${PILL[r.cat]||''}">${r.cat}</span></td>
+    <td>${r.seg}</td><td>${r.cust.toLocaleString()}</td>
+    <td>$${r.rev.toLocaleString()}</td><td>$${r.avg}</td>
+    <td>${r.disc}%</td><td>${r.sub}%</td><td>${r.rating} ★</td>
+  </tr>`).join('');
+}
+function sortTable(key){
+  const map={rev:'rev',cust:'cust',avg:'avg',cat:'cat',seg:'seg'};
+  if(!map[key]||!window._tableRows)return;
+  window._tableRows.sort((a,b)=>typeof a[map[key]]==='string'?a[map[key]].localeCompare(b[map[key]]):b[map[key]]-a[map[key]]);filterTable();
+}
+
+const INSIGHTS=[
+  {icon:'ti-id-badge',color:'#fee2e2',ic:'#991b1b',text:'Only <strong>27% subscribed</strong> — largest retention gap. Exclusive perks, early access, and reward points could triple adoption.'},
+  {icon:'ti-shirt',color:'#dbeafe',ic:'#1e40af',text:'<strong>Clothing at $104K (45%)</strong> is the clear leader. Increase premium lines and category-specific ads to widen the gap.'},
+  {icon:'ti-coat',color:'#fef9c3',ic:'#854d0e',text:'<strong>Outerwear at $18.5K (8%)</strong> underperforms. Bundle with Clothing and run seasonal promotions to boost visibility.'},
+  {icon:'ti-woman',color:'#fce7f3',ic:'#9d174d',text:'<strong>Female customers only 32%</strong> of base. Gender-specific campaigns could add $30K+ in untapped revenue.'},
+  {icon:'ti-sun',color:'#d1fae5',ic:'#065f46',text:'<strong>Stable seasonal demand</strong> makes inventory forecasting predictable — an advantage for bulk purchasing.'},
+  {icon:'ti-star',color:'#ede9fe',ic:'#5b21b6',text:'<strong>Positive review ratings</strong> across all categories. Leverage reviews in marketing to improve conversion rates.'},
+];
+function buildInsights(){
+  document.getElementById('insight-list').innerHTML=INSIGHTS.map(i=>`
+    <div class="insight-item">
+      <div class="ins-icon" style="background:${i.color}"><i class="ti ${i.icon}" style="color:${i.ic};font-size:15px"></i></div>
+      <div class="ins-text">${i.text}</div>
+    </div>`).join('');
+}
+
+let simChart=null;
+function updateSim(){
+  const sub=+document.getElementById('subRate').value;
+  const fem=+document.getElementById('femShare').value;
+  const outer=+document.getElementById('outerLift').value;
+  document.getElementById('subRateVal').textContent=sub+'%';
+  document.getElementById('femShareVal').textContent=fem+'%';
+  document.getElementById('outerLiftVal').textContent=outer+'%';
+  const subLift=(sub-27)/27*0.15*233081;
+  const femLift=(fem-32)/32*0.12*233081;
+  const outerLiftAmt=outer/100*18524;
+  const proj=Math.round(233081+subLift+femLift+outerLiftAmt);
+  const uplift=((proj-233081)/233081*100).toFixed(1);
+  document.getElementById('simProj').textContent=fmt(proj);
+  document.getElementById('simUplift').textContent=(uplift>0?'+':'')+uplift+'%';
+  document.getElementById('simUplift').style.color=uplift>0?'#10b981':'#ef4444';
+  if(simChart)simChart.destroy();
+  simChart=new Chart(document.getElementById('c9'),{type:'bar',data:{labels:['Current','Projected'],datasets:[{data:[233081,proj],backgroundColor:['#94a3b8',proj>233081?'#10b981':'#ef4444'],borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.raw)}}},scales:{y:{min:200000,ticks:{callback:v=>fmt(v),font:{size:10},color:'#9ca3af'},grid:{color:'#f3f4f6'}},x:{ticks:{font:{size:12},color:'#6b7280'},grid:{display:false}}}}});
+}
+
+let selectedKpi=0;
+const DRILL_CONTENT=[
+  {title:'Revenue Breakdown',body:'<div class="stat-mini"><div class="stat-mini-item"><div class="stat-mini-lbl">Clothing</div><div class="stat-mini-val" style="color:#3b82f6">$104K</div></div><div class="stat-mini-item"><div class="stat-mini-lbl">Accessories</div><div class="stat-mini-val" style="color:#8b5cf6">$74K</div></div><div class="stat-mini-item"><div class="stat-mini-lbl">Footwear</div><div class="stat-mini-val" style="color:#10b981">$36K</div></div><div class="stat-mini-item"><div class="stat-mini-lbl">Outerwear</div><div class="stat-mini-val" style="color:#f59e0b">$18K</div></div></div>'},
+  {title:'Customer Segments',body:'<div class="stat-mini"><div class="stat-mini-item"><div class="stat-mini-lbl">Male</div><div class="stat-mini-val" style="color:#3b82f6">2,652</div></div><div class="stat-mini-item"><div class="stat-mini-lbl">Female</div><div class="stat-mini-val" style="color:#ec4899">1,248</div></div><div class="stat-mini-item"><div class="stat-mini-lbl">Subscribed</div><div class="stat-mini-val" style="color:#10b981">1,053</div></div><div class="stat-mini-item"><div class="stat-mini-lbl">Non-sub</div><div class="stat-mini-val">2,847</div></div></div>'},
+  {title:'Purchase Patterns',body:'<div class="stat-mini"><div class="stat-mini-item"><div class="stat-mini-lbl">Min</div><div class="stat-mini-val">$20</div></div><div class="stat-mini-item"><div class="stat-mini-lbl">Max</div><div class="stat-mini-val">$100</div></div><div class="stat-mini-item"><div class="stat-mini-lbl">Median</div><div class="stat-mini-val">$60</div></div><div class="stat-mini-item"><div class="stat-mini-lbl">Avg</div><div class="stat-mini-val">$59.76</div></div></div>'},
+  {title:'Subscription Opportunity',body:'<div class="stat-mini"><div class="stat-mini-item"><div class="stat-mini-lbl">Current</div><div class="stat-mini-val" style="color:#ef4444">27%</div></div><div class="stat-mini-item"><div class="stat-mini-lbl">Industry avg</div><div class="stat-mini-val">45%</div></div><div class="stat-mini-item"><div class="stat-mini-lbl">Gap</div><div class="stat-mini-val" style="color:#f59e0b">-18pp</div></div><div class="stat-mini-item"><div class="stat-mini-lbl">Potential</div><div class="stat-mini-val" style="color:#10b981">+702</div></div></div>'},
+];
+function selectKpi(idx){
+  document.querySelectorAll('.kpi').forEach((k,i)=>{k.classList.toggle('selected',i===idx)});
+  selectedKpi=idx;
+  document.getElementById('kpi-drill').classList.add('show');
+  document.getElementById('drill-title').textContent=DRILL_CONTENT[idx].title;
+  document.getElementById('drill-body').innerHTML=DRILL_CONTENT[idx].body;
+}
+function closeDrill(){document.getElementById('kpi-drill').classList.remove('show');}
+
+function switchTab(id,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+  if(id==='categories')buildCatCards();
+  if(id==='customers'){buildTable();updateAgeSim();}
+  if(id==='recommendations'){buildInsights();updateSim();}
+}
+
+updateKpis();updateCharts();selectKpi(0);
+</script>
